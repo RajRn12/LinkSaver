@@ -8,6 +8,7 @@ import { View, Alert, Image, Text, LogBox, Pressable, TextInput, ScrollView } fr
 import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Audio } from 'expo-av';
 import { openDatabase } from 'expo-sqlite';
 import Styles from './styles/page-styles';
 import AddScreen from './components/addScreen.js';
@@ -20,7 +21,7 @@ LogBox.ignoreLogs([
 ]);
 
 // Open and connect to database
-const db= openDatabase('dst.db');
+const db= openDatabase('dab.db');
 
 function LogoTitle() {
     return (
@@ -87,8 +88,9 @@ function LogoModifyInfo() {
         </Pressable>
     )
 }
-function HomeScreen({ navigation}) {
 
+
+function HomeScreen({ navigation}) {
     // For refresh
     const isFocused = useIsFocused();
 
@@ -145,6 +147,12 @@ function HomeScreen({ navigation}) {
                                             value={link}
                                             readOnly={true}
                                         />
+                                        <Pressable
+                                            style={[Styles.button, { backgroundColor: 'orange' }]}
+                                            onPress={() => navigation.navigate('Modify', {
+                                                database: [db], id: id, keyword:keyword, link:link
+                                            })}
+                                        ><Text style={Styles.buttonText}>Modify</Text></Pressable>
                                     </View>
                                 )
                             })
@@ -157,15 +165,10 @@ function HomeScreen({ navigation}) {
                 <Pressable
                     style={[Styles.button, { backgroundColor: 'green' }]}
                     onPress={() => navigation.navigate('Add', {
-                        database: [db]
+                        database: [db]  
                     })}
                 ><Text style={Styles.buttonText}>Add</Text></Pressable>
-                <Pressable
-                    style={[Styles.button, { backgroundColor: 'orange' }]}
-                    onPress={() => navigation.navigate('Modify', {
-                        database: [db]
-                    })}
-                ><Text style={Styles.buttonText}>Modify</Text></Pressable>
+             
 
                 {/* For Download */}
                 <Pressable
@@ -229,5 +232,4 @@ function App() {
         </NavigationContainer>
     );
 }
-
 export default App;

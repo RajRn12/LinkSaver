@@ -7,6 +7,8 @@ import * as React from 'react';
 import { View, Alert, Text, Pressable, TextInput, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import Styles from '../styles/page-styles';
+import { useIsFocused } from '@react-navigation/native';
+
 function AddScreen({ navigation, route }) {
     // For database
     const db = route.params.database[0];
@@ -85,6 +87,10 @@ function AddScreen({ navigation, route }) {
                                             value={link}
                                             editable={false}
                                         />
+                                        <Pressable
+                                            style={[Styles.button, { backgroundColor: 'orange' }]}
+                                            onPress={() => navigation.navigate('Modify', { database: [db], id:id })}
+                                        ><Text style={Styles.buttonText}>Modify</Text></Pressable>
                                     </View>
                                 )
                             })
@@ -100,10 +106,7 @@ function AddScreen({ navigation, route }) {
                 ><Text style={Styles.buttonText}>Add</Text></Pressable>
 
                 {/* For Navigation */}
-                <Pressable
-                    style={[Styles.button, { backgroundColor: 'orange' }]}
-                    onPress={() => navigation.navigate('Modify', {database: [db]})}
-                ><Text style={Styles.buttonText}>Modify</Text></Pressable>
+              
                 <Pressable
                     style={[Styles.button, { backgroundColor: 'rgb(37, 150, 190)' }]}
                     onPress={() => navigation.navigate('Home', {
