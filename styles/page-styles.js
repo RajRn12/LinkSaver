@@ -82,6 +82,30 @@ const styles = StyleSheet.create({
         borderRadius: 2,
     },
 
+    editView: {
+        flexDirection: 'row',
+        marginLeft: 15,
+        marginBottom:6,
+    },
+    editButton: {
+        paddingVertical: 6,
+        paddingHorizontal: 50,
+        borderRadius: 3,
+        elevation: 3,
+    },
+
+    saveView: {
+        flexDirection: 'row',
+        marginLeft: 14,
+        marginBottom: 6,
+    },
+    saveButton: {
+        paddingVertical: 6,
+        paddingHorizontal: 56,
+        borderRadius: 9,
+        elevation: 3,
+    },
+
     modify: {
         height: '100%',
         backgroundColor: 'white',

@@ -4,22 +4,16 @@
  * Date     -   Apr-16-24
  **/
 import * as React from 'react';
-import { View, Alert, Text, Pressable, TextInput, ScrollView } from 'react-native';
-import { useEffect, useState } from 'react';
+import { View, Alert, Text, Pressable, TextInput} from 'react-native';
+import { useState } from 'react';
 import Styles from '../styles/page-styles';
-import { useIsFocused } from '@react-navigation/native';
 import CustomInput from './customInput';
 
 function ModifyScreen({ navigation, route}) {
-
-    // For refresh
-    const isFocused = useIsFocused();
-
     // For database
     const db = route.params.database[0];
 
     // Limited number of Data
-    const [data, setData] = useState([]);
     const id = route.params.id;
     const keyword = route.params.keyword;
     const link = route.params.link;
@@ -30,16 +24,29 @@ function ModifyScreen({ navigation, route}) {
                 tx.executeSql(
                     "delete from links where id = ?",
                     [id],
-                    () => console.log("deleted Data ", id),
+                    () => console.log("deleted Data at index", id),
                     (_, error) => console.log(error)
                 )
             },
             (_, error) => console.log('deleteData() failed: ', error),
         )
+        setTimeout(() => {
+            navigation.goBack();
+        }, 500)
     }
 
-    const handleInputChange = (text, id) => {
-   
+    const updateData = (keyword, link, id) => {
+        db.transaction(
+            (tx) => {
+                tx.executeSql(
+                    "update links set keyword = ?, link = ? where id = ?",
+                    [keyword, link, id],
+                    () => console.log("New values at index", id, ":", keyword, "and", link),
+                    (_, error) => console.log(error)
+                )
+            },
+            (_, error) => console.log('updateData() failed: ', error),
+        )
     };
 
     return (
@@ -47,11 +54,7 @@ function ModifyScreen({ navigation, route}) {
             <View style={Styles.modifyTableView}>        
                           
             <View style={Styles.modifyDataView}>
-                    <CustomInput id={id} val={keyword} cb={handleInputChange} />
-                    <CustomInput id={id} val={link} cb={handleInputChange} />
-                    <View style={{ flexDirection: 'row' }}>
-                        <Pressable style={{ marginLeft: 6, marginBottom: 6 }} onPress={() => deleteData(id)}><Text>❌ Tap Me To Delete</Text></Pressable>
-                    </View>
+                    <CustomInput id={id} keyword={keyword} link={link} cb={updateData} />
                 </View>     
             </View>
 
@@ -59,7 +62,7 @@ function ModifyScreen({ navigation, route}) {
                 {/* For adding */}
                 <Pressable
                     style={[Styles.button, { backgroundColor: 'green' }]}
-                    onPress={() => navigation.navigate('Add', {database: [db]})}
+                    onPress={() => { navigation.navigate('Add', { database: [db] })}}
                 ><Text style={Styles.buttonText}>ADD</Text></Pressable>
 
                 {/* For Navigation */}

@@ -8,8 +8,73 @@ import { View, Alert, Text, Pressable, TextInput, ScrollView } from 'react-nativ
 import { useEffect, useState } from 'react';
 import Styles from '../styles/page-styles';
 import { useIsFocused } from '@react-navigation/native';
-
+import { Audio } from 'expo-av';
 function AddScreen({ navigation, route }) {
+    // Audio
+    const [soundList, setSoundList] = useState([
+        { sound: null }, { sound: null }
+    ])
+    // Sounds from the Internet
+    const addSound = { uri: 'http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav' }
+    const deleteSound = { uri: 'http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/player_shoot.wav' }
+
+    const loadSoundList = () => {
+        loadSound(0, addSound);
+        loadSound(1, deleteSound);
+    }
+
+    const loadSound = async (id, uri) => {
+        const { sound } = await Audio.Sound.createAsync(uri);
+        let newA = { ...soundList }
+        if (soundList[id].sound == null) {
+            newA[id].sound = sound;
+            setSoundList(newA)
+            console.log("loaded sound at index", id)
+        }
+    }
+
+    const playSound = async (id) => {
+        try {
+            if (soundList[id].sound != null) {
+                await soundList[id].sound.replayAsync();
+            }
+            if (soundList[id].sound == null) {
+                loadSoundList();
+            }
+        } catch (e) {
+            console.log(e)
+        };
+    }
+
+    // unload a sound
+    const unloadSound = async () => {
+        let x = 0;
+        while (x < soundList.length) {
+            // stop and unload
+            if (soundList[x].sound != null) {
+                await soundList[x].sound.stopAsync();
+                await soundList[x].sound.unloadAsync();
+
+                console.log("unloaded", soundList[x].name)
+            }
+            // load after unload to be able to play sound
+            if (soundList[x].sound == null) {
+                loadSoundList();
+            }
+            x++
+        }
+    }
+
+    useEffect(() => {
+        loadSoundList()
+        return soundList
+            ? () => {
+                unloadSound()
+            }
+            : undefined;
+
+    }, [soundList.sound])
+
     // For database
     const db = route.params.database[0];
     const [updateLinks, forceUpdate] = useState(0);
@@ -35,25 +100,55 @@ function AddScreen({ navigation, route }) {
                         (_, error) => console.log(error)
                     ),
                         (_, error) => console.log(error),
-                        () => console.log("retrieving updated data")
+                        () => console.log("failed retrieving updated data")
                 }
             )
         }
     }, [db, updateLinks, isFocused])
 
     const addData = (keyword, link) => {
-        db.transaction(
-            (tx) => {
-                tx.executeSql(
-                    "insert into links (keyword, link) values (?, ?)",
-                    [keyword, link],
-                    () => console.log("added", keyword, "And", link),
-                    (_, error) => console.log(error)
+        playSound(0)
+        setTimeout(() => {
+            if (keyword != "" && link != "") {
+                db.transaction(
+                    (tx) => {
+                        tx.executeSql(
+                            "insert into links (keyword, link) values (?, ?)",
+                            [keyword, link],
+                            () => console.log("added", keyword, "And", link),
+                            (_, error) => console.log(error)
+                        )
+                    },
+                    (_, error) => console.log('addData() failed: ', error),
+                    forceUpdate(f => f + 1)
                 )
-            },
-            (_, error) => console.log('addData() failed: ', error),
-            forceUpdate(f => f + 1)
-        )
+                onChangeKeyword("");
+                onChangeLink("")
+            }
+            else {
+                Alert.alert("ERROR:", "Please fill in the boxes!")
+            }
+        }, 400)
+    }
+
+    // Delete Data from specific index
+    const deleteData = (id) => {
+        playSound(1);
+        setTimeout(() => {
+            db.transaction(
+                (tx) => {
+                    tx.executeSql(
+                        "delete from links where id = ?",
+                        [id],
+                        () => console.log("deleted Data at index", id),
+                        (_, error) => console.log(error)
+                    )
+                },
+                (_, error) => console.log('deleteData() failed: ', error),
+                forceUpdate(f => f + 1)
+            )
+
+        }, 400)
     }
     return (
         <View style={Styles.add}>
@@ -87,10 +182,18 @@ function AddScreen({ navigation, route }) {
                                             value={link}
                                             editable={false}
                                         />
-                                        <Pressable
-                                            style={[Styles.button, { backgroundColor: 'orange' }]}
-                                            onPress={() => navigation.navigate('Modify', { database: [db], id:id })}
-                                        ><Text style={Styles.buttonText}>Modify</Text></Pressable>
+                                        <View style={Styles.editView}>
+                                            <Pressable
+                                                style={[Styles.editButton, { backgroundColor: 'orange' }]}
+                                                onPress={() => navigation.navigate('Modify', {
+                                                    database: [db], id: id, keyword: keyword, link: link
+                                                })}
+                                            ><Text style={Styles.buttonText}>Modify</Text></Pressable>
+                                            <Pressable
+                                                style={[Styles.editButton, { backgroundColor: 'red' }]}
+                                                onPress={() => deleteData(id)}>
+                                                <Text style={Styles.buttonText}>Delete</Text></Pressable>
+                                        </View>
                                     </View>
                                 )
                             })
@@ -109,9 +212,7 @@ function AddScreen({ navigation, route }) {
               
                 <Pressable
                     style={[Styles.button, { backgroundColor: 'rgb(37, 150, 190)' }]}
-                    onPress={() => navigation.navigate('Home', {
-                        force: [updateLinks]
-                    })}
+                    onPress={() => navigation.navigate('Home')}
                 ><Text style={Styles.buttonText}>Home</Text></Pressable>
             </View>
         </View>

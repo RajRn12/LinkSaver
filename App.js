@@ -1,4 +1,4 @@
-/**
+﻿/**
  * File     -   index.js 
  * Author   -   Raj Rai
  * Date     -   Apr-16-24
@@ -21,7 +21,7 @@ LogBox.ignoreLogs([
 ]);
 
 // Open and connect to database
-const db= openDatabase('dab.db');
+const db= openDatabase('dad1.db');
 
 function LogoTitle() {
     return (
@@ -49,7 +49,7 @@ function LogoModify() {
 }
 function LogoInfo() {
     function showInfo() {
-        Alert.alert("Link Saver", "You can add Keyword and URL link related to Data Table which can be accessed at anytime. You can navigate between screens. You can modify added Data and delete them, and you can download added Data on your Phone, too!")
+        Alert.alert("Link Saver:", "App with a Database for storing huge Data. You can add Keyword and URL link related to Database Table which can be accessed at anytime. You can navigate between screens. You can modify added Data and delete them, and you can download added Data on your Phone, too!")
     }
     return (
         <Pressable onPress={() => showInfo() }>
@@ -63,7 +63,7 @@ function LogoInfo() {
 
 function LogoAddInfo() {
     function showInfo() {
-        Alert.alert("Add", "You can add Keyword and URL link related to it which can be accessed at anytime. You can navigate to Modify screen or you can go back Home! ")
+        Alert.alert("Add:", "You can add Keyword and URL link related to it which can be accessed at anytime. You can modify and delete added Data and navigate between screens ! ")
     }
     return (
         <Pressable onPress={() => showInfo()}>
@@ -77,7 +77,7 @@ function LogoAddInfo() {
 
 function LogoModifyInfo() {
     function showInfo() {
-        Alert.alert("Modify", "You can modify added Data and delete them as well. You can navigate to Add screen or you can go back Home!")
+        Alert.alert("Modify:", "You can change the texts and hit Save to update the database with the new values. You can hit Undo to restore original data unless you navigate to different and come back. You can navigate to Add screen to add more Data or you can go back Home!")
     }
     return (
         <Pressable onPress={() => showInfo()}>
@@ -90,20 +90,82 @@ function LogoModifyInfo() {
 }
 
 
-function HomeScreen({ navigation}) {
+function HomeScreen({ navigation }) {
+    // Audio
+    const [soundList, setSoundList] = useState([
+        { sound: null }
+    ])
+    // Sound from the Internet
+    const deleteSound = { uri: 'http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/player_shoot.wav' }
+
+    const loadSoundList = () => {
+        loadSound(0, deleteSound);
+    }
+
+    const loadSound = async (id, uri) => {
+        const { sound } = await Audio.Sound.createAsync(uri);
+        let newA = { ...soundList }
+        if (soundList[id].sound == null) {
+            newA[id].sound = sound;
+            setSoundList(newA)
+            console.log("loaded sound at index", id)
+        }
+    }
+
+    const playSound = async (id) => {
+        try {
+            if (soundList[id].sound != null) {
+                await soundList[id].sound.replayAsync();
+            }
+            if (soundList[id].sound == null) {
+                loadSoundList();
+            }
+        } catch (e) {
+            console.log(e)
+        };
+    }
+
+    // unload a sound
+    const unloadSound = async () => {
+        let x = 0;
+        while (x < soundList.length) {
+            // stop and unload
+            if (soundList[x].sound != null) {
+                await soundList[x].sound.stopAsync();
+                await soundList[x].sound.unloadAsync();
+
+                console.log("unloaded", soundList[x].name)
+            }
+            // load after unload to be able to play sound
+            if (soundList[x].sound == null) {
+                loadSoundList();
+            }
+            x++
+        }
+    }
+
+    useEffect(() => {
+        loadSoundList()
+        return soundList
+            ? () => {
+                unloadSound()
+            }
+            : undefined;
+
+    }, [soundList.sound])
     // For refresh
     const isFocused = useIsFocused();
 
     // For database
     const [data, setData] = useState([]);
+    const [updateLinks, forceUpdate] = useState(0);
 
     // Create datatable
     useEffect(() => {
-        console.log(db);
-
         db.transaction((tx) => {
             tx.executeSql(
-                "create table if not exists links (id integer primary key AUTOINCREMENT NOT NULL, keyword text, link text);"
+                "create table if not exists links (id integer primary key AUTOINCREMENT NOT NULL, keyword text, link text);",
+                () => console.log("Table is successfully created")
             ),
                 (_, error) => console.log(error),
                 () => console.log("Table exists or was created")
@@ -122,13 +184,31 @@ function HomeScreen({ navigation}) {
                         (_, error) => console.log(error)
                     ),
                         (_, error) => console.log(error),
-                        () => console.log("retrieving updated data")
+                        () => console.log("retrieving updated data failed")
                 }
             )
         }
 
-    }, [db, isFocused])
+    }, [db, updateLinks, isFocused])
 
+    // Delete Data from specific index
+    const deleteData = (id) => {
+        playSound(0);
+        setTimeout(() => {
+            db.transaction(
+                (tx) => {
+                    tx.executeSql(
+                        "delete from links where id = ?",
+                        [id],
+                        () => console.log("deleted Data at index", id),
+                        (_, error) => console.log(error)
+                    )
+                },
+                (_, error) => console.log('deleteData() failed: ', error),
+                forceUpdate(f => f + 1)
+            )
+        }, 450)
+    }
     return (
         <View style={Styles.home}>
             <View style={Styles.tableView}>
@@ -146,13 +226,19 @@ function HomeScreen({ navigation}) {
                                             style={Styles.input}
                                             value={link}
                                             readOnly={true}
-                                        />
-                                        <Pressable
-                                            style={[Styles.button, { backgroundColor: 'orange' }]}
-                                            onPress={() => navigation.navigate('Modify', {
-                                                database: [db], id: id, keyword:keyword, link:link
-                                            })}
-                                        ><Text style={Styles.buttonText}>Modify</Text></Pressable>
+                                        />    
+                                        <View style={Styles.editView}>
+                                            <Pressable
+                                                style={[Styles.editButton, { backgroundColor: 'orange' }]}
+                                                onPress={() => navigation.navigate('Modify', {
+                                                    database: [db], id: id, keyword: keyword, link: link
+                                                })}
+                                            ><Text style={Styles.buttonText}>Modify</Text></Pressable>
+                                            <Pressable
+                                                style={[Styles.editButton, { backgroundColor: 'red' }]}
+                                                onPress={() => { deleteData(id) }}>
+                                                <Text style={Styles.buttonText}>Delete</Text></Pressable>
+                                        </View>
                                     </View>
                                 )
                             })
@@ -165,7 +251,7 @@ function HomeScreen({ navigation}) {
                 <Pressable
                     style={[Styles.button, { backgroundColor: 'green' }]}
                     onPress={() => navigation.navigate('Add', {
-                        database: [db]  
+                        database: [db] 
                     })}
                 ><Text style={Styles.buttonText}>Add</Text></Pressable>
              
