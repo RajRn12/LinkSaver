@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     },
     editButton: {
         paddingVertical: 6,
-        paddingHorizontal: 50,
+        paddingHorizontal: 21,
         borderRadius: 3,
         elevation: 3,
     },

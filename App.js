@@ -4,7 +4,7 @@
  * Date     -   Apr-16-24
  **/
 import * as React from 'react';
-import { View, Alert, Image, Text, LogBox, Pressable, TextInput, ScrollView } from 'react-native';
+import { View, Alert, Image, Text, LogBox, Pressable, Button, TextInput, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -14,7 +14,7 @@ import Styles from './styles/page-styles';
 import AddScreen from './components/addScreen.js';
 import ModifyScreen from './components/modifyScreen';
 import { useIsFocused } from '@react-navigation/native';
-
+import { openBrowserAsync } from 'expo-web-browser';
 // Ignore warnings as they don't affect anything
 LogBox.ignoreLogs([
     'Non-serializable values were found in the navigation state',
@@ -77,7 +77,7 @@ function LogoAddInfo() {
 
 function LogoModifyInfo() {
     function showInfo() {
-        Alert.alert("Modify:", "You can change the texts and hit Save to update the database with the new values. You can hit Undo to restore original data unless you navigate to different and come back. You can navigate to Add screen to add more Data or you can go back Home!")
+        Alert.alert("Modify:", "You can change the texts and hit Save to update the database with the new values. You can hit Undo to restore original data unless you navigate to different and come back. You can navigate to Add screen to add more Data or you can go back Home! Shorter vibration means 'Updated' and longer means 'Validation Issue'")
     }
     return (
         <Pressable onPress={() => showInfo()}>
@@ -228,6 +228,11 @@ function HomeScreen({ navigation }) {
                                             readOnly={true}
                                         />    
                                         <View style={Styles.editView}>
+                                            <Pressable
+                                                style={[Styles.editButton, { backgroundColor: 'lightblue' }]}
+                                                onPress={() => openBrowserAsync(link)}
+                                            ><Text style={Styles.buttonText}>Open Web</Text></Pressable>
+                                            
                                             <Pressable
                                                 style={[Styles.editButton, { backgroundColor: 'orange' }]}
                                                 onPress={() => navigation.navigate('Modify', {

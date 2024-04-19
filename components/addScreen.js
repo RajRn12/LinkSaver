@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import Styles from '../styles/page-styles';
 import { useIsFocused } from '@react-navigation/native';
 import { Audio } from 'expo-av';
+import { openBrowserAsync } from 'expo-web-browser';
 function AddScreen({ navigation, route }) {
     // Audio
     const [soundList, setSoundList] = useState([
@@ -67,7 +68,7 @@ function AddScreen({ navigation, route }) {
 
     useEffect(() => {
         loadSoundList()
-        return soundList
+        return soundList.sound
             ? () => {
                 unloadSound()
             }
@@ -87,7 +88,7 @@ function AddScreen({ navigation, route }) {
     const [keyword, onChangeKeyword] = useState("");
     const [keyword_Hint, setKeywordHint] = useState("Enter Keyword")
     const [link, onChangeLink] = useState("");
-    const [link_Hint, setLinkHint] = useState("Enter URL Link")
+    const [link_Hint, setLinkHint] = useState("Enter URL Link starting with https")
 
     useEffect(() => {
         if (db != null) {
@@ -107,28 +108,38 @@ function AddScreen({ navigation, route }) {
     }, [db, updateLinks, isFocused])
 
     const addData = (keyword, link) => {
-        playSound(0)
-        setTimeout(() => {
-            if (keyword != "" && link != "") {
-                db.transaction(
-                    (tx) => {
-                        tx.executeSql(
-                            "insert into links (keyword, link) values (?, ?)",
-                            [keyword, link],
-                            () => console.log("added", keyword, "And", link),
-                            (_, error) => console.log(error)
-                        )
-                    },
-                    (_, error) => console.log('addData() failed: ', error),
-                    forceUpdate(f => f + 1)
-                )
-                onChangeKeyword("");
-                onChangeLink("")
-            }
-            else {
-                Alert.alert("ERROR:", "Please fill in the boxes!")
-            }
-        }, 400)
+        const letters = /^[A-Za-z]+$/
+        const regexL = new RegExp(letters);
+
+        const expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+        const regex = new RegExp(expression);
+
+        if (keyword.match(regexL) && link.match(regex)) {
+            playSound(0)
+            setTimeout(() => {
+                if (keyword != "" && link != "") {
+                    db.transaction(
+                        (tx) => {
+                            tx.executeSql(
+                                "insert into links (keyword, link) values (?, ?)",
+                                [keyword, link],
+                                () => console.log("added", keyword, "And", link),
+                                (_, error) => console.log(error)
+                            )
+                        },
+                        (_, error) => console.log('addData() failed: ', error),
+                        forceUpdate(f => f + 1)
+                    )
+                    onChangeKeyword("");
+                    onChangeLink("")
+                }
+                else {
+                    Alert.alert("ERROR:", "Please fill in the boxes!")
+                }
+            }, 400)
+        } else {
+            Alert.alert("Invalid Value(s):", "Only letters allowed for Keyword. And please make sure the URL Link is valid and starts with https, and can be accessed via a Browser!")
+        }
     }
 
     // Delete Data from specific index
@@ -175,14 +186,21 @@ function AddScreen({ navigation, route }) {
                                         <TextInput
                                             style={Styles.input}
                                             value={keyword}
-                                            editable={false}
+                                            readOnly={true}
                                         />
                                         <TextInput
+                                            autoFocus={true}
+                                            selection={{ start: 0, end: 0 }}
                                             style={Styles.input}
                                             value={link}
-                                            editable={false}
+                                            readOnly={true}
                                         />
                                         <View style={Styles.editView}>
+                                            <Pressable
+                                                style={[Styles.editButton, { backgroundColor: 'lightblue' }]}
+                                                onPress={() => openBrowserAsync(link)}
+                                            ><Text style={Styles.buttonText}>Open Web</Text></Pressable>
+
                                             <Pressable
                                                 style={[Styles.editButton, { backgroundColor: 'orange' }]}
                                                 onPress={() => navigation.navigate('Modify', {

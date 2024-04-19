@@ -4,12 +4,16 @@
  * Date     -   Apr-16-24
  **/
 import * as React from 'react';
-import { View, Alert, Text, Pressable, TextInput} from 'react-native';
+import { View, Alert, Text, Pressable, Vibration} from 'react-native';
 import { useState } from 'react';
 import Styles from '../styles/page-styles';
 import CustomInput from './customInput';
 
-function ModifyScreen({ navigation, route}) {
+function ModifyScreen({ navigation, route }) {
+    // For Vibration feedback to indicate Update has been made
+    const HALF_SECOND_IN_MS = 500;  // Updated
+    const ONE_SECOND_IN_MS = 1000;  // Problem
+
     // For database
     const db = route.params.database[0];
 
@@ -36,17 +40,29 @@ function ModifyScreen({ navigation, route}) {
     }
 
     const updateData = (keyword, link, id) => {
-        db.transaction(
-            (tx) => {
-                tx.executeSql(
-                    "update links set keyword = ?, link = ? where id = ?",
-                    [keyword, link, id],
-                    () => console.log("New values at index", id, ":", keyword, "and", link),
-                    (_, error) => console.log(error)
-                )
-            },
-            (_, error) => console.log('updateData() failed: ', error),
-        )
+        const letters = /^[A-Za-z]+$/
+        const regexL = new RegExp(letters);
+
+        const expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+        const regex = new RegExp(expression);
+
+        if (keyword.match(regexL) && link.match(regex)) {
+            Vibration.vibrate(HALF_SECOND_IN_MS)
+            db.transaction(
+                (tx) => {
+                    tx.executeSql(
+                        "update links set keyword = ?, link = ? where id = ?",
+                        [keyword, link, id],
+                        () => console.log("New values at index", id, ":", keyword, "and", link),
+                        (_, error) => console.log(error)
+                    )
+                },
+                (_, error) => console.log('updateData() failed: ', error),
+            )
+        } else {
+            Vibration.vibrate(ONE_SECOND_IN_MS);
+            Alert.alert("Invalid Value(s):", "Only letters allowed for Keyword. And please make sure the URL Link is valid and starts with https, and can be accessed via a Browser!")
+        }
     };
 
     return (

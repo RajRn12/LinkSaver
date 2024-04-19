@@ -8,13 +8,11 @@ import { View, Alert, Text, Vibration, Pressable, TextInput } from 'react-native
 import { useEffect, useState } from 'react';
 import Styles from '../styles/page-styles';
 
-function CustomInput({ id, keyword, link, cb }) {
-    // For Vibration feedback to indicate Update has been made
-    const ONE_SECOND_IN_MS = 1000;
-
+function CustomInput({ id, keyword, link, cb }) { 
     const [text, setText] = useState(keyword);
     const [url, setUrl] = useState(link)
-
+    // For Vibration feedback to indicate restore
+    const QUARTER_SECOND_IN_MS = 250;  // Restored
     return (
     <View>
         <TextInput
@@ -30,11 +28,11 @@ function CustomInput({ id, keyword, link, cb }) {
             <View style={Styles.saveView}>
                 <Pressable
                     style={[Styles.saveButton, { backgroundColor: 'lightgreen' }]}
-                    onPress={() => { cb(text, url, id); Vibration.vibrate(ONE_SECOND_IN_MS)}}>
+                    onPress={() => { cb(text, url, id) }}>
                 <Text style={Styles.buttonText}>Save</Text></Pressable>
                 <Pressable
                     style={[Styles.saveButton, { backgroundColor: 'blue' }]}
-                    onPress={() => { setText(keyword); setUrl(link); cb(keyword, link, id); Vibration.vibrate(ONE_SECOND_IN_MS) }}>
+                    onPress={() => { setText(keyword); setUrl(link); cb(keyword, link, id); Vibration.vibrate(QUARTER_SECOND_IN_MS) }}>
                     <Text style={Styles.buttonText}>Undo</Text></Pressable>
             </View>
         </View>
