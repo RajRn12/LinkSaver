@@ -21,7 +21,7 @@ LogBox.ignoreLogs([
 ]);
 
 // Open and connect to database
-const db= openDatabase('dad1.db');
+const db= openDatabase('dad2.db');
 
 function LogoTitle() {
     return (
@@ -90,7 +90,7 @@ function LogoModifyInfo() {
 }
 
 
-function HomeScreen({ navigation }) {
+function HomeScreen({ navigation, route }) {
     // Audio
     const [soundList, setSoundList] = useState([
         { sound: null }
@@ -133,26 +133,27 @@ function HomeScreen({ navigation }) {
             if (soundList[x].sound != null) {
                 await soundList[x].sound.stopAsync();
                 await soundList[x].sound.unloadAsync();
-
-                console.log("unloaded", soundList[x].name)
+                console.log("Unloaded sound")
             }
             // load after unload to be able to play sound
-            if (soundList[x].sound == null) {
-                loadSoundList();
-            }
+            loadSoundList();
             x++
         }
     }
 
     useEffect(() => {
         loadSoundList()
-        return soundList
+        return soundList.sound
             ? () => {
                 unloadSound()
             }
             : undefined;
 
     }, [soundList.sound])
+
+    // Show message when data table empty
+    const [isEmpty, setIsEmpty] = useState(true)
+
     // For refresh
     const isFocused = useIsFocused();
 
@@ -207,11 +208,14 @@ function HomeScreen({ navigation }) {
                 (_, error) => console.log('deleteData() failed: ', error),
                 forceUpdate(f => f + 1)
             )
+            setIsEmpty(true);
         }, 450)
     }
     return (
         <View style={Styles.home}>
             <View style={Styles.tableView}>
+                {isEmpty ?
+                    <View style={[Styles.emptyView, { marginTop: 200}]}><Text style={Styles.emptyText}>EMPTY: Go to 'Add' page and 'Add' 'Keyword' and 'URL Link'!</Text></View>:
                     <ScrollView>
                         {data.map(
                             ({ id, keyword, link }) => {
@@ -226,13 +230,13 @@ function HomeScreen({ navigation }) {
                                             style={Styles.input}
                                             value={link}
                                             readOnly={true}
-                                        />    
+                                        />
                                         <View style={Styles.editView}>
                                             <Pressable
                                                 style={[Styles.editButton, { backgroundColor: 'lightblue' }]}
                                                 onPress={() => openBrowserAsync(link)}
                                             ><Text style={Styles.buttonText}>Open Web</Text></Pressable>
-                                            
+
                                             <Pressable
                                                 style={[Styles.editButton, { backgroundColor: 'orange' }]}
                                                 onPress={() => navigation.navigate('Modify', {
@@ -248,7 +252,8 @@ function HomeScreen({ navigation }) {
                                 )
                             })
                         }
-                    </ScrollView>  
+                    </ScrollView>
+                }
             </View>
 
             <View style={Styles.buttonView}>
@@ -256,7 +261,7 @@ function HomeScreen({ navigation }) {
                 <Pressable
                     style={[Styles.button, { backgroundColor: 'green' }]}
                     onPress={() => navigation.navigate('Add', {
-                        database: [db] 
+                        database: [db],
                     })}
                 ><Text style={Styles.buttonText}>Add</Text></Pressable>
              

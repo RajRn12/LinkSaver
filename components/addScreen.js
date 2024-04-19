@@ -56,12 +56,10 @@ function AddScreen({ navigation, route }) {
                 await soundList[x].sound.stopAsync();
                 await soundList[x].sound.unloadAsync();
 
-                console.log("unloaded", soundList[x].name)
+                console.log("Unloaded sound")
             }
             // load after unload to be able to play sound
-            if (soundList[x].sound == null) {
-                loadSoundList();
-            }
+            loadSoundList();
             x++
         }
     }
@@ -75,6 +73,9 @@ function AddScreen({ navigation, route }) {
             : undefined;
 
     }, [soundList.sound])
+
+    // Retrieve empty bool state
+    const [isEmpty, setIsEmpty] = useState(true)
 
     // For database
     const db = route.params.database[0];
@@ -132,6 +133,7 @@ function AddScreen({ navigation, route }) {
                     )
                     onChangeKeyword("");
                     onChangeLink("")
+                    setIsEmpty(false);
                 }
                 else {
                     Alert.alert("ERROR:", "Please fill in the boxes!")
@@ -178,7 +180,8 @@ function AddScreen({ navigation, route }) {
                 />
             </View>
             <View style={Styles.addTableView}>
-                     <ScrollView>
+                {isEmpty ? <View style={[Styles.emptyView, { marginTop: 170, }]}><Text style={Styles.emptyText}>EMPTY: Add 'keyword' and 'URL Link'</Text></View> :
+                    <ScrollView>
                         {data.map(
                             ({ id, keyword, link }) => {
                                 return (
@@ -217,6 +220,7 @@ function AddScreen({ navigation, route }) {
                             })
                         }
                     </ScrollView>
+                }
             </View>
 
             <View style={Styles.buttonView}>

@@ -28,6 +28,20 @@ const styles = StyleSheet.create({
         borderRadius: 2,
     },
 
+    emptyView: {
+        alignItems: 'center',
+    },
+    emptyText: {
+        textShadowColor: 'rgba(246, 35, 35, 0.8)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 20,
+        textAlign:'center',
+        fontWeight: 'bold',
+        color: 'yellow',
+        fontSize: 18,
+    },
+
+
     inputView: {
         width:'100%',
         backgroundColor:'white',
