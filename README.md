@@ -5,17 +5,17 @@
 - Has In-app browser feature which lets you open a link with your default browser
 - Has sound effects and vibration for event feedback
   
-# Main package required to run the project: Expo
-: npm install expo
+# Main package required to run the project: 
+- Expo  : npm install expo
 
 # Addional required libraries to build this project
-@react-navigation/native       : npx expo install @react-navigation/native   
-@react-navigation/native-stack : npx expo install @react-navigation/native-stack
-expo-av                        : npx expo install expo-av
-expo-sqlite                    : npx expo install expo-sqlite 
-expo-web-browser               : npx expo install expo-web-browser
-expo-splash-screen             : npx expo install expo-splash-screen
-expo-file-system               : npx expo install expo-file-system
+- @react-navigation/native       : npx expo install @react-navigation/native   
+- @react-navigation/native-stack : npx expo install @react-navigation/native-stack
+- expo-av                        : npx expo install expo-av
+- expo-sqlite                    : npx expo install expo-sqlite 
+- expo-web-browser               : npx expo install expo-web-browser
+- expo-splash-screen             : npx expo install expo-splash-screen
+- expo-file-system               : npx expo install expo-file-system
 
 # Things you can do on the App
 - For more info, hit question mark icon at top right
