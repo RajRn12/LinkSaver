@@ -4,17 +4,18 @@
  * Date     -   Apr-16-24
  **/
 import * as React from 'react';
-import { View, Alert, Image, Text, LogBox, Pressable, Button, TextInput, ScrollView } from 'react-native';
+import { View, Alert, Image, Text, LogBox, Pressable, TextInput, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Audio } from 'expo-av';
 import { openDatabase } from 'expo-sqlite';
 import Styles from './styles/page-styles';
 import AddScreen from './components/addScreen.js';
 import ModifyScreen from './components/modifyScreen';
-import { useIsFocused } from '@react-navigation/native';
 import { openBrowserAsync } from 'expo-web-browser';
+import * as SplashScreen from 'expo-splash-screen';
+
 // Ignore warnings as they don't affect anything
 LogBox.ignoreLogs([
     'Non-serializable values were found in the navigation state',
@@ -49,7 +50,7 @@ function LogoModify() {
 }
 function LogoInfo() {
     function showInfo() {
-        Alert.alert("Link Saver:", "App with a Database for storing huge Data. You can add Keyword and URL link related to Database Table which can be accessed at anytime. You can navigate between screens. You can modify added Data and delete them, and you can download added Data on your Phone, too!")
+        Alert.alert("Link Saver:", "App with a Database for keywords and links. You can add Keyword and URL link related to Database Table which can be accessed at anytime. You can navigate between screens. You can hit open Browser to open up Browser accessing a specific link. You can modify added Data and delete them, and you can download added Data on your Phone, too!")
     }
     return (
         <Pressable onPress={() => showInfo() }>
@@ -63,7 +64,7 @@ function LogoInfo() {
 
 function LogoAddInfo() {
     function showInfo() {
-        Alert.alert("Add:", "You can add Keyword and URL link related to it which can be accessed at anytime. You can modify and delete added Data and navigate between screens ! ")
+        Alert.alert("Add:", "You can add Keyword and URL link related to it which can be accessed at anytime. You can modify and delete added Data and navigate to Home! ")
     }
     return (
         <Pressable onPress={() => showInfo()}>
@@ -89,8 +90,12 @@ function LogoModifyInfo() {
     )
 }
 
-
 function HomeScreen({ navigation, route }) {
+
+    // Splash
+    SplashScreen.preventAutoHideAsync();
+    setTimeout(SplashScreen.hideAsync, 2000);
+
     // Audio
     const [soundList, setSoundList] = useState([
         { sound: null }
@@ -151,9 +156,6 @@ function HomeScreen({ navigation, route }) {
 
     }, [soundList.sound])
 
-    // Show message when data table empty
-    const [isEmpty, setIsEmpty] = useState(true)
-
     // For refresh
     const isFocused = useIsFocused();
 
@@ -208,14 +210,11 @@ function HomeScreen({ navigation, route }) {
                 (_, error) => console.log('deleteData() failed: ', error),
                 forceUpdate(f => f + 1)
             )
-            setIsEmpty(true);
         }, 450)
     }
     return (
         <View style={Styles.home}>
             <View style={Styles.tableView}>
-                {isEmpty ?
-                    <View style={[Styles.emptyView, { marginTop: 200}]}><Text style={Styles.emptyText}>EMPTY: Go to 'Add' page and 'Add' 'Keyword' and 'URL Link'!</Text></View>:
                     <ScrollView>
                         {data.map(
                             ({ id, keyword, link }) => {
@@ -253,9 +252,7 @@ function HomeScreen({ navigation, route }) {
                             })
                         }
                     </ScrollView>
-                }
             </View>
-
             <View style={Styles.buttonView}>
                 {/* For Navigation */}
                 <Pressable

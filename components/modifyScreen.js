@@ -5,7 +5,6 @@
  **/
 import * as React from 'react';
 import { View, Alert, Text, Pressable, Vibration} from 'react-native';
-import { useState } from 'react';
 import Styles from '../styles/page-styles';
 import CustomInput from './customInput';
 

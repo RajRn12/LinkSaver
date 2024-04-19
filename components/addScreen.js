@@ -74,9 +74,6 @@ function AddScreen({ navigation, route }) {
 
     }, [soundList.sound])
 
-    // Retrieve empty bool state
-    const [isEmpty, setIsEmpty] = useState(true)
-
     // For database
     const db = route.params.database[0];
     const [updateLinks, forceUpdate] = useState(0);
@@ -105,11 +102,13 @@ function AddScreen({ navigation, route }) {
                         () => console.log("failed retrieving updated data")
                 }
             )
+
         }
     }, [db, updateLinks, isFocused])
 
     const addData = (keyword, link) => {
-        const letters = /^[A-Za-z]+$/
+        // Using regex for proper data insert
+        const letters = /^[A-Za-z_ ]+$/
         const regexL = new RegExp(letters);
 
         const expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
@@ -124,7 +123,7 @@ function AddScreen({ navigation, route }) {
                             tx.executeSql(
                                 "insert into links (keyword, link) values (?, ?)",
                                 [keyword, link],
-                                () => console.log("added", keyword, "And", link),
+                                () => console.log("added keyword:", keyword, "And link:", link),
                                 (_, error) => console.log(error)
                             )
                         },
@@ -133,14 +132,13 @@ function AddScreen({ navigation, route }) {
                     )
                     onChangeKeyword("");
                     onChangeLink("")
-                    setIsEmpty(false);
                 }
                 else {
                     Alert.alert("ERROR:", "Please fill in the boxes!")
                 }
             }, 400)
         } else {
-            Alert.alert("Invalid Value(s):", "Only letters allowed for Keyword. And please make sure the URL Link is valid and starts with https, and can be accessed via a Browser!")
+            Alert.alert("Invalid Value(s):", "Only letters allowed for Keyword. The URL Link must be valid and starts with https, and can be accessed via a Browser!")
         }
     }
 
@@ -160,7 +158,6 @@ function AddScreen({ navigation, route }) {
                 (_, error) => console.log('deleteData() failed: ', error),
                 forceUpdate(f => f + 1)
             )
-
         }, 400)
     }
     return (
@@ -180,7 +177,6 @@ function AddScreen({ navigation, route }) {
                 />
             </View>
             <View style={Styles.addTableView}>
-                {isEmpty ? <View style={[Styles.emptyView, { marginTop: 170, }]}><Text style={Styles.emptyText}>EMPTY: Add 'keyword' and 'URL Link'</Text></View> :
                     <ScrollView>
                         {data.map(
                             ({ id, keyword, link }) => {
@@ -220,7 +216,7 @@ function AddScreen({ navigation, route }) {
                             })
                         }
                     </ScrollView>
-                }
+                
             </View>
 
             <View style={Styles.buttonView}>
@@ -228,7 +224,7 @@ function AddScreen({ navigation, route }) {
                 <Pressable
                     style={[Styles.button, { backgroundColor: 'green' }]}
                     onPress={() => addData(keyword, link)}
-                ><Text style={Styles.buttonText}>Add</Text></Pressable>
+                ><Text style={Styles.buttonText}>Add Data</Text></Pressable>
 
                 {/* For Navigation */}
               

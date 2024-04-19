@@ -12,7 +12,7 @@
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.18",
     "expo": "^50.0.17",
-    "expo-av": "~13.10.5",
+    "expo-av": "13.10.6",
     "expo-file-system": "~16.0.9",
     "expo-sqlite": "~13.4.0",
     "expo-status-bar": "~1.11.1",

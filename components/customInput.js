@@ -2,10 +2,11 @@
  * File     -   customInput.js 
  * Author   -   Raj Rai
  * Date     -   Apr-18-24
+ * Thanks   -   Claire Fleckney
  **/
 import * as React from 'react';
-import { View, Alert, Text, Vibration, Pressable, TextInput } from 'react-native';
-import { useEffect, useState } from 'react';
+import { View, Text, Vibration, Pressable, TextInput } from 'react-native';
+import { useState } from 'react';
 import Styles from '../styles/page-styles';
 
 function CustomInput({ id, keyword, link, cb }) { 
