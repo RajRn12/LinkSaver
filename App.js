@@ -15,6 +15,8 @@ import AddScreen from './components/addScreen.js';
 import ModifyScreen from './components/modifyScreen';
 import { openBrowserAsync } from 'expo-web-browser';
 import * as SplashScreen from 'expo-splash-screen';
+import * as FileSystem from 'expo-file-system';
+import { shareAsync } from 'expo-sharing';
 
 // Ignore warnings as they don't affect anything
 LogBox.ignoreLogs([
@@ -163,6 +165,20 @@ function HomeScreen({ navigation, route }) {
     const [data, setData] = useState([]);
     const [updateLinks, forceUpdate] = useState(0);
 
+    // Download
+    const downloadData = async () => {
+        const filename = "small.wav";
+        const result = await FileSystem.downloadAsync('http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/player_shoot.wav',
+            FileSystem.documentDirectory + filename)
+        console.log(result);
+
+        save(result.uri);
+    };
+
+    const save = (uri) => {
+        shareAsync(uri);
+    };
+    
     // Create datatable
     useEffect(() => {
         db.transaction((tx) => {
@@ -266,7 +282,7 @@ function HomeScreen({ navigation, route }) {
                 {/* For Download */}
                 <Pressable
                     style={[Styles.button, { backgroundColor: 'blue' }]}
-                    onPress={() => { } }
+                    onPress={() => downloadData()}
                 ><Text style={Styles.buttonText}>Download</Text></Pressable>
             </View>
         </View>
