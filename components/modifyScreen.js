@@ -39,13 +39,10 @@ function ModifyScreen({ navigation, route }) {
     }
 
     const updateData = (keyword, link, id) => {
-        const letters = /^[A-Za-z]+$/
-        const regexL = new RegExp(letters);
-
         const expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
         const regex = new RegExp(expression);
 
-        if (keyword.match(regexL) && link.match(regex)) {
+        if (link.match(regex)) {
             Vibration.vibrate(HALF_SECOND_IN_MS)
             db.transaction(
                 (tx) => {
@@ -60,7 +57,7 @@ function ModifyScreen({ navigation, route }) {
             )
         } else {
             Vibration.vibrate(ONE_SECOND_IN_MS);
-            Alert.alert("Invalid Value(s):", "Only letters allowed for Keyword. And please make sure the URL Link is valid and starts with https, and can be accessed via a Browser!")
+            Alert.alert("Invalid Value:", "The URL Link must be valid and starts with https, and can be accessed via a Browser!")
         }
     };
 

@@ -108,13 +108,11 @@ function AddScreen({ navigation, route }) {
 
     const addData = (keyword, link) => {
         // Using regex for proper data insert
-        const letters = /^[A-Za-z_ ]+$/
-        const regexL = new RegExp(letters);
 
         const expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
         const regex = new RegExp(expression);
 
-        if (keyword.match(regexL) && link.match(regex)) {
+        if (link.match(regex)) {
             playSound(0)
             setTimeout(() => {
                 if (keyword != "" && link != "") {
@@ -138,7 +136,7 @@ function AddScreen({ navigation, route }) {
                 }
             }, 400)
         } else {
-            Alert.alert("Invalid Value(s):", "Only letters allowed for Keyword. The URL Link must be valid and starts with https, and can be accessed via a Browser!")
+            Alert.alert("Invalid Value:", "The URL Link must be valid and starts with https, and can be accessed via a Browser!")
         }
     }
 

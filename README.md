@@ -4,7 +4,9 @@
 - It runs with a database, so you can store a lot of links
 - Has In-app browser feature which lets you open a link with your default browser
 - Has sound effects and vibration for event feedback
-  
+
+# To run Project
+- npx expo start or npx expo start --tunnel
 # Main package required to run the project: 
 - Expo  : npm install expo
 
@@ -15,7 +17,6 @@
 - expo-sqlite                    : npx expo install expo-sqlite 
 - expo-web-browser               : npx expo install expo-web-browser
 - expo-splash-screen             : npx expo install expo-splash-screen
-- expo-file-system               : npx expo install expo-file-system
 
 # Things you can do on the App
 - For more info, hit question mark icon at top right
@@ -24,4 +25,5 @@
 - Open link with browser
 - Modify data: Save and Undo
 - Delete data
+
 ********************************************************************************************************************************************************************************

@@ -15,8 +15,6 @@ import AddScreen from './components/addScreen.js';
 import ModifyScreen from './components/modifyScreen';
 import { openBrowserAsync } from 'expo-web-browser';
 import * as SplashScreen from 'expo-splash-screen';
-import * as FileSystem from 'expo-file-system';
-import { shareAsync } from 'expo-sharing';
 
 // Ignore warnings as they don't affect anything
 LogBox.ignoreLogs([
@@ -24,7 +22,7 @@ LogBox.ignoreLogs([
 ]);
 
 // Open and connect to database
-const db= openDatabase('dad2.db');
+const db= openDatabase('link.db');
 
 function LogoTitle() {
     return (
@@ -52,7 +50,7 @@ function LogoModify() {
 }
 function LogoInfo() {
     function showInfo() {
-        Alert.alert("Link Saver:", "App with a Database for keywords and links. You can add Keyword and URL link related to Database Table which can be accessed at anytime. You can navigate between screens. You can hit open Browser to open up Browser accessing a specific link. You can modify added Data and delete them, and you can download added Data on your Phone, too!")
+        Alert.alert("Link Saver:", "App with a Database for keywords and links. You can add Keyword and URL link related to Database Table which can be accessed at anytime. You can navigate between screens. You can hit open Browser to open up Browser accessing a specific link. You can modify added Data and delete them.")
     }
     return (
         <Pressable onPress={() => showInfo() }>
@@ -164,20 +162,6 @@ function HomeScreen({ navigation, route }) {
     // For database
     const [data, setData] = useState([]);
     const [updateLinks, forceUpdate] = useState(0);
-
-    // Download
-    const downloadData = async () => {
-        const filename = "small.wav";
-        const result = await FileSystem.downloadAsync('http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/player_shoot.wav',
-            FileSystem.documentDirectory + filename)
-        console.log(result);
-
-        save(result.uri);
-    };
-
-    const save = (uri) => {
-        shareAsync(uri);
-    };
     
     // Create datatable
     useEffect(() => {
@@ -277,13 +261,6 @@ function HomeScreen({ navigation, route }) {
                         database: [db],
                     })}
                 ><Text style={Styles.buttonText}>Add</Text></Pressable>
-             
-
-                {/* For Download */}
-                <Pressable
-                    style={[Styles.button, { backgroundColor: 'blue' }]}
-                    onPress={() => downloadData()}
-                ><Text style={Styles.buttonText}>Download</Text></Pressable>
             </View>
         </View>
    
