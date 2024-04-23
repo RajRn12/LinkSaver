@@ -15,9 +15,10 @@ function AddScreen({ navigation, route }) {
     const [soundList, setSoundList] = useState([
         { sound: null }, { sound: null }
     ])
-    // Sounds from the Internet
-    const addSound = { uri: 'http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/pause.wav' }
-    const deleteSound = { uri: 'http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/player_shoot.wav' }
+    // Sounds
+    const addSound = require('../assets/sfx/pause.wav');
+    const deleteSound = require('../assets/sfx/player_shoot.wav');
+
 
     const loadSoundList = () => {
         loadSound(0, addSound);
@@ -33,7 +34,7 @@ function AddScreen({ navigation, route }) {
             console.log("loaded sound at index", id)
         }
     }
-
+    
     const playSound = async (id) => {
         try {
             if (soundList[id].sound != null) {
@@ -55,7 +56,6 @@ function AddScreen({ navigation, route }) {
             if (soundList[x].sound != null) {
                 await soundList[x].sound.stopAsync();
                 await soundList[x].sound.unloadAsync();
-
                 console.log("Unloaded sound")
             }
             // load after unload to be able to play sound

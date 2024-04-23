@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
+    "\\assets",
+    "\\assets\\sfx",
     "\\components"
   ],
-  "SelectedNode": "\\package.json",
   "PreviewInSolutionExplorer": false
 }

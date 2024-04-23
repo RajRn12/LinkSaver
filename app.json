@@ -15,7 +15,9 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rajrai.linksaver",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +25,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.rajrai.linksaver",
-      "versionCode": 1000
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"

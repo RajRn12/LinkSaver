@@ -15,6 +15,7 @@ import AddScreen from './components/addScreen.js';
 import ModifyScreen from './components/modifyScreen';
 import { openBrowserAsync } from 'expo-web-browser';
 import * as SplashScreen from 'expo-splash-screen';
+import GeneratePDF from './components/generatePDF'
 
 // Ignore warnings as they don't affect anything
 LogBox.ignoreLogs([
@@ -22,7 +23,7 @@ LogBox.ignoreLogs([
 ]);
 
 // Open and connect to database
-const db= openDatabase('link.db');
+const db= openDatabase('link1.db');
 
 function LogoTitle() {
     return (
@@ -36,7 +37,7 @@ function LogoSave() {
     return (
         <Image
             style={{ width: 40, height: 40 }}
-            source={require('./assets/saveLogo.png')}
+            source={{ uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFxSKjkwS9ZfNYllmttEsWyfqNqtHqdzdsvjieKN9TeA&s" }}
         />
     );
 }
@@ -100,8 +101,8 @@ function HomeScreen({ navigation, route }) {
     const [soundList, setSoundList] = useState([
         { sound: null }
     ])
-    // Sound from the Internet
-    const deleteSound = { uri: 'http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/player_shoot.wav' }
+    // Sound
+    const deleteSound = require('./assets/sfx/player_shoot.wav');
 
     const loadSoundList = () => {
         loadSound(0, deleteSound);
@@ -159,6 +160,8 @@ function HomeScreen({ navigation, route }) {
     // For refresh
     const isFocused = useIsFocused();
 
+    // For PDF document
+    const doc = []
     // For database
     const [data, setData] = useState([]);
     const [updateLinks, forceUpdate] = useState(0);
@@ -197,6 +200,7 @@ function HomeScreen({ navigation, route }) {
     // Delete Data from specific index
     const deleteData = (id) => {
         playSound(0);
+        doc.push({ id: id }, { unlist: true })
         setTimeout(() => {
             db.transaction(
                 (tx) => {
@@ -246,6 +250,7 @@ function HomeScreen({ navigation, route }) {
                                                 style={[Styles.editButton, { backgroundColor: 'red' }]}
                                                 onPress={() => { deleteData(id) }}>
                                                 <Text style={Styles.buttonText}>Delete</Text></Pressable>
+                                            <GeneratePDF id={id} keyword={keyword} link={link} doc={doc} />
                                         </View>
                                     </View>
                                 )
@@ -290,6 +295,7 @@ function App() {
                     name="Add"
                     component={AddScreen}
                     options={{
+                        title: "Add",
                         headerBackVisible: false,
                         headerStyle: {
                             backgroundColor: 'green',
